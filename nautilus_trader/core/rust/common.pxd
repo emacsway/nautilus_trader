@@ -274,10 +274,7 @@ cdef extern from "../includes/common.h":
     #
     # - Assumes `component_ptr` is a valid C string pointer.
     # - Assumes `message_ptr` is a valid C string pointer.
-    void logger_log(Logger_t *logger,
-                    uint64_t _timestamp_ns,
-                    LogLevel level,
-                    const char *message_ptr);
+    void logger_log(Logger_t *logger, LogLevel level, const char *message_ptr);
 
     TimeEventHandler_t dummy(TimeEventHandler_t v);
 

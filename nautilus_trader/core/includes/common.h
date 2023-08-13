@@ -416,10 +416,7 @@ uint8_t logger_is_bypassed(const struct Logger_t *logger);
  * - Assumes `component_ptr` is a valid C string pointer.
  * - Assumes `message_ptr` is a valid C string pointer.
  */
-void logger_log(struct Logger_t *logger,
-                uint64_t _timestamp_ns,
-                enum LogLevel level,
-                const char *message_ptr);
+void logger_log(struct Logger_t *logger, enum LogLevel level, const char *message_ptr);
 
 struct TimeEventHandler_t dummy(struct TimeEventHandler_t v);
 

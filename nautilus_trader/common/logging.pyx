@@ -100,52 +100,22 @@ cdef class Logger:
 
     def __init__(
         self,
-        Clock clock not None,
         TraderId trader_id = None,
-        str machine_id = None,
-        UUID4 instance_id = None,
-        LogLevel level_stdout = LogLevel.INFO,
-        LogLevel level_file = LogLevel.DEBUG,
-        bint file_logging = False,
-        str directory = None,
-        str file_name = None,
-        str file_format = None,
-        dict component_levels: dict[ComponentId, LogLevel] = None,
+        str component = None,
         bint bypass = False,
-        bint dummy = False,
     ):
         if trader_id is None:
             trader_id = TraderId("TRADER-000")
-        if instance_id is None:
-            instance_id = UUID4()
-        if machine_id is None:
-            machine_id = socket.gethostname()
-
-        self._clock = clock
+        if component is None:
+            component = "core"
 
         cdef str trader_id_str = trader_id.to_str()
-        cdef str instance_id_str = instance_id.to_str()
-
-        if dummy:
-            return  # Do not initialize core Rust logger
 
         self._mem = logger_new(
             pystr_to_cstr(trader_id_str),
-            pystr_to_cstr(machine_id),
-            pystr_to_cstr(instance_id_str),
-            level_stdout,
-            level_file,
-            file_logging,
-            pystr_to_cstr(directory) if directory else NULL,
-            pystr_to_cstr(file_name) if file_name else NULL,
-            pystr_to_cstr(file_format) if file_format else NULL,
-            pybytes_to_cstr(msgspec.json.encode(component_levels)) if component_levels is not None else NULL,
+            pystr_to_cstr(component),
             bypass,
         )
-
-    def __del__(self) -> None:
-        if self._mem._0 != NULL:
-            logger_drop(self._mem)  # `self._mem` moved to Rust (then dropped)
 
     @property
     def trader_id(self) -> TraderId:
@@ -157,37 +127,7 @@ cdef class Logger:
         TraderId
 
         """
-        if self._mem._0 == NULL:
-            return None  # Not initialized
         return TraderId(cstr_to_pystr(logger_get_trader_id_cstr(&self._mem)))
-
-    @property
-    def machine_id(self) -> str:
-        """
-        Return the loggers machine ID.
-
-        Returns
-        -------
-        str
-
-        """
-        if self._mem._0 == NULL:
-            return None  # Not initialized
-        return cstr_to_pystr(logger_get_machine_id_cstr(&self._mem))
-
-    @property
-    def instance_id(self) -> UUID4:
-        """
-        Return the loggers system instance ID.
-
-        Returns
-        -------
-        UUID4
-
-        """
-        if self._mem._0 == NULL:
-            return None  # Not initialized
-        return UUID4.from_mem_c(logger_get_instance_id(&self._mem))
 
     @property
     def is_bypassed(self) -> bool:
@@ -199,60 +139,26 @@ cdef class Logger:
         bool
 
         """
-        if self._mem._0 == NULL:
-            return False  # Not initialized
         return logger_is_bypassed(&self._mem)
-
-    cpdef void change_clock(self, Clock clock):
-        """
-        Change the loggers internal clock to the given clock.
-
-        Parameters
-        ----------
-        clock : Clock
-
-        """
-        Condition.not_none(clock, "clock")
-
-        self._clock = clock
 
     cdef void log(
         self,
-        uint64_t timestamp,
         LogLevel level,
-        LogColor color,
-        str component,
         str message,
-        dict annotations = None,
     ):
         self._log(
-            timestamp,
             level,
-            color,
-            component,
             message,
-            annotations,
         )
 
     cdef void _log(
         self,
-        uint64_t timestamp,
         LogLevel level,
-        LogColor color,
-        str component,
         str message,
-        dict annotations,
     ):
-        if self._mem._0 == NULL:
-            print("ERROR: Logger has not been initialized.")
-            return  # Not initialized
-
         logger_log(
             &self._mem,
-            timestamp,
             level,
-            color,
-            pystr_to_cstr(component),
             pystr_to_cstr(message),
         )
 
@@ -293,30 +199,6 @@ cdef class LoggerAdapter:
         return self._logger.trader_id
 
     @property
-    def machine_id(self) -> str:
-        """
-        Return the loggers machine ID.
-
-        Returns
-        -------
-        str
-
-        """
-        return self._logger.machine_id
-
-    @property
-    def instance_id(self) -> UUID4:
-        """
-        Return the loggers system instance ID.
-
-        Returns
-        -------
-        UUID4
-
-        """
-        return self._logger.instance_id
-
-    @property
     def component(self) -> str:
         """
         Return the loggers component name.
@@ -354,8 +236,6 @@ cdef class LoggerAdapter:
     cpdef void debug(
         self,
         str message,
-        LogColor color = LogColor.NORMAL,
-        dict annotations = None,
     ):
         """
         Log the given debug message with the logger.
@@ -376,18 +256,12 @@ cdef class LoggerAdapter:
             return
 
         self._logger.log(
-            self._logger._clock.timestamp_ns(),
             LogLevel.DEBUG,
-            color,
-            self.component,
             message,
-            annotations,
         )
 
     cpdef void info(
         self, str message,
-        LogColor color = LogColor.NORMAL,
-        dict annotations = None,
     ):
         """
         Log the given information message with the logger.
@@ -408,19 +282,13 @@ cdef class LoggerAdapter:
             return
 
         self._logger.log(
-            self._logger._clock.timestamp_ns(),
             LogLevel.INFO,
-            color,
-            self.component,
             message,
-            annotations,
         )
 
     cpdef void warning(
         self,
         str message,
-        LogColor color = LogColor.YELLOW,
-        dict annotations = None,
     ):
         """
         Log the given warning message with the logger.
@@ -441,19 +309,13 @@ cdef class LoggerAdapter:
             return
 
         self._logger.log(
-            self._logger._clock.timestamp_ns(),
             LogLevel.WARNING,
-            color,
-            self.component,
             message,
-            annotations,
         )
 
     cpdef void error(
         self,
         str message,
-        LogColor color = LogColor.RED,
-        dict annotations = None,
     ):
         """
         Log the given error message with the logger.
@@ -474,45 +336,8 @@ cdef class LoggerAdapter:
             return
 
         self._logger.log(
-            self._logger._clock.timestamp_ns(),
             LogLevel.ERROR,
-            color,
-            self.component,
             message,
-            annotations,
-        )
-
-    cpdef void critical(
-        self,
-        str message,
-        LogColor color = LogColor.RED,
-        dict annotations = None,
-    ):
-        """
-        Log the given critical message with the logger.
-
-        Parameters
-        ----------
-        message : str
-            The log message content.
-        color : LogColor, optional
-            The log message color.
-        annotations : dict[str, object], optional
-            The annotations for the log record.
-
-        """
-        Condition.not_none(message, "message")
-
-        if self.is_bypassed:
-            return
-
-        self._logger.log(
-            self._logger._clock.timestamp_ns(),
-            LogLevel.CRITICAL,
-            color,
-            self.component,
-            message,
-            annotations,
         )
 
     cpdef void exception(

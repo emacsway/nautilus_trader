@@ -58,7 +58,6 @@ pub extern "C" fn logger_is_bypassed(logger: &Logger) -> u8 {
 #[no_mangle]
 pub unsafe extern "C" fn logger_log(
     logger: &mut Logger,
-    _timestamp_ns: u64,
     level: LogLevel,
     message_ptr: *const c_char,
 ) {
