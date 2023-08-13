@@ -103,13 +103,6 @@ cdef extern from "../includes/common.h":
     cdef struct LiveClock:
         pass
 
-    # Provides a high-performance logger utilizing a MPSC channel under the hood.
-    #
-    # A separate thead is spawned at initialization which receives [`LogEvent`] structs over the
-    # channel.
-    cdef struct Logger_t:
-        pass
-
     cdef struct TestClock:
         pass
 
@@ -136,16 +129,10 @@ cdef extern from "../includes/common.h":
     cdef struct LiveClock_API:
         LiveClock *_0;
 
-    # Provides a C compatible Foreign Function Interface (FFI) for an underlying [`Logger`].
-    #
-    # This struct wraps `Logger` in a way that makes it compatible with C function
-    # calls, enabling interaction with `Logger` in a C environment.
-    #
-    # It implements the `Deref` trait, allowing instances of `Logger_API` to be
-    # dereferenced to `Logger`, providing access to `Logger`'s methods without
-    # having to manually access the underlying `Logger` instance.
-    cdef struct Logger_API:
-        Logger_t *_0;
+    cdef struct Logger_t:
+        TraderId trader_id;
+        char* component;
+        bool is_bypassed;
 
     # Represents a time event occurring at the event timestamp.
     cdef struct TimeEvent_t:
@@ -275,29 +262,11 @@ cdef extern from "../includes/common.h":
     # # Safety
     #
     # - Assumes `trader_id_ptr` is a valid C string pointer.
-    # - Assumes `machine_id_ptr` is a valid C string pointer.
-    # - Assumes `instance_id_ptr` is a valid C string pointer.
-    Logger_API logger_new(const char *trader_id_ptr,
-                          const char *machine_id_ptr,
-                          const char *instance_id_ptr,
-                          LogLevel level_stdout,
-                          LogLevel level_file,
-                          uint8_t file_logging,
-                          const char *directory_ptr,
-                          const char *file_name_ptr,
-                          const char *file_format_ptr,
-                          const char *component_levels_ptr,
-                          uint8_t is_bypassed);
+    Logger_t logger_new(const char *trader_id_ptr, const char *component_ptr, uint8_t is_bypassed);
 
-    void logger_drop(Logger_API logger);
+    const char *logger_get_trader_id_cstr(const Logger_t *logger);
 
-    const char *logger_get_trader_id_cstr(const Logger_API *logger);
-
-    const char *logger_get_machine_id_cstr(const Logger_API *logger);
-
-    UUID4_t logger_get_instance_id(const Logger_API *logger);
-
-    uint8_t logger_is_bypassed(const Logger_API *logger);
+    uint8_t logger_is_bypassed(const Logger_t *logger);
 
     # Create a new log event.
     #
@@ -305,11 +274,9 @@ cdef extern from "../includes/common.h":
     #
     # - Assumes `component_ptr` is a valid C string pointer.
     # - Assumes `message_ptr` is a valid C string pointer.
-    void logger_log(Logger_API *logger,
-                    uint64_t timestamp_ns,
+    void logger_log(Logger_t *logger,
+                    uint64_t _timestamp_ns,
                     LogLevel level,
-                    LogColor color,
-                    const char *component_ptr,
                     const char *message_ptr);
 
     TimeEventHandler_t dummy(TimeEventHandler_t v);

@@ -13,110 +13,39 @@
 //  limitations under the License.
 // -------------------------------------------------------------------------------------------------
 
-use std::{
-    ffi::c_char,
-    ops::{Deref, DerefMut},
-};
+use std::ffi::c_char;
 
-use nautilus_core::{
-    parsing::optional_bytes_to_json,
-    string::{cstr_to_string, optional_cstr_to_string, str_to_cstr},
-    uuid::UUID4,
-};
+use nautilus_core::string::{cstr_to_string, str_to_cstr};
 use nautilus_model::identifiers::trader_id::TraderId;
+use ustr::Ustr;
 
-use crate::{
-    enums::{LogColor, LogLevel},
-    logging::Logger,
-};
-
-/// Provides a C compatible Foreign Function Interface (FFI) for an underlying [`Logger`].
-///
-/// This struct wraps `Logger` in a way that makes it compatible with C function
-/// calls, enabling interaction with `Logger` in a C environment.
-///
-/// It implements the `Deref` trait, allowing instances of `Logger_API` to be
-/// dereferenced to `Logger`, providing access to `Logger`'s methods without
-/// having to manually access the underlying `Logger` instance.
-#[repr(C)]
-#[allow(non_camel_case_types)]
-pub struct Logger_API(Box<Logger>);
-
-impl Deref for Logger_API {
-    type Target = Logger;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Logger_API {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
+use crate::{enums::LogLevel, logging::Logger};
 
 /// Creates a new logger.
 ///
 /// # Safety
 ///
 /// - Assumes `trader_id_ptr` is a valid C string pointer.
-/// - Assumes `machine_id_ptr` is a valid C string pointer.
-/// - Assumes `instance_id_ptr` is a valid C string pointer.
 #[no_mangle]
 pub unsafe extern "C" fn logger_new(
     trader_id_ptr: *const c_char,
-    machine_id_ptr: *const c_char,
-    instance_id_ptr: *const c_char,
-    level_stdout: LogLevel,
-    level_file: LogLevel,
-    file_logging: u8,
-    directory_ptr: *const c_char,
-    file_name_ptr: *const c_char,
-    file_format_ptr: *const c_char,
-    component_levels_ptr: *const c_char,
+    component_ptr: *const c_char,
     is_bypassed: u8,
-) -> Logger_API {
-    Logger_API(Box::new(Logger::new(
+) -> Logger {
+    Logger::new(
         TraderId::new(&cstr_to_string(trader_id_ptr)),
-        String::from(&cstr_to_string(machine_id_ptr)),
-        UUID4::from(cstr_to_string(instance_id_ptr).as_str()),
-        level_stdout,
-        if file_logging != 0 {
-            Some(level_file)
-        } else {
-            None
-        },
-        optional_cstr_to_string(directory_ptr),
-        optional_cstr_to_string(file_name_ptr),
-        optional_cstr_to_string(file_format_ptr),
-        optional_bytes_to_json(component_levels_ptr),
+        Ustr::from(&cstr_to_string(component_ptr)),
         is_bypassed != 0,
-    )))
+    )
 }
 
 #[no_mangle]
-pub extern "C" fn logger_drop(logger: Logger_API) {
-    drop(logger); // Memory freed here
-}
-
-#[no_mangle]
-pub extern "C" fn logger_get_trader_id_cstr(logger: &Logger_API) -> *const c_char {
+pub extern "C" fn logger_get_trader_id_cstr(logger: &Logger) -> *const c_char {
     str_to_cstr(&logger.trader_id.to_string())
 }
 
 #[no_mangle]
-pub extern "C" fn logger_get_machine_id_cstr(logger: &Logger_API) -> *const c_char {
-    str_to_cstr(&logger.machine_id)
-}
-
-#[no_mangle]
-pub extern "C" fn logger_get_instance_id(logger: &Logger_API) -> UUID4 {
-    logger.instance_id
-}
-
-#[no_mangle]
-pub extern "C" fn logger_is_bypassed(logger: &Logger_API) -> u8 {
+pub extern "C" fn logger_is_bypassed(logger: &Logger) -> u8 {
     logger.is_bypassed as u8
 }
 
@@ -128,14 +57,17 @@ pub extern "C" fn logger_is_bypassed(logger: &Logger_API) -> u8 {
 /// - Assumes `message_ptr` is a valid C string pointer.
 #[no_mangle]
 pub unsafe extern "C" fn logger_log(
-    logger: &mut Logger_API,
-    timestamp_ns: u64,
+    logger: &mut Logger,
+    _timestamp_ns: u64,
     level: LogLevel,
-    color: LogColor,
-    component_ptr: *const c_char,
     message_ptr: *const c_char,
 ) {
-    let component = cstr_to_string(component_ptr);
     let message = cstr_to_string(message_ptr);
-    logger.send(timestamp_ns, level, color, component, message);
+    match level {
+        LogLevel::Debug => logger.debug(message),
+        LogLevel::Info => logger.info(message),
+        LogLevel::Warning => logger.warn(message),
+        LogLevel::Error => logger.error(message),
+        _ => {} // TODO: remove critical level logging
+    }
 }

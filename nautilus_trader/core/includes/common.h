@@ -195,14 +195,6 @@ typedef enum LogLevel {
 
 typedef struct LiveClock LiveClock;
 
-/**
- * Provides a high-performance logger utilizing a MPSC channel under the hood.
- *
- * A separate thead is spawned at initialization which receives [`LogEvent`] structs over the
- * channel.
- */
-typedef struct Logger_t Logger_t;
-
 typedef struct TestClock TestClock;
 
 /**
@@ -234,19 +226,11 @@ typedef struct LiveClock_API {
     struct LiveClock *_0;
 } LiveClock_API;
 
-/**
- * Provides a C compatible Foreign Function Interface (FFI) for an underlying [`Logger`].
- *
- * This struct wraps `Logger` in a way that makes it compatible with C function
- * calls, enabling interaction with `Logger` in a C environment.
- *
- * It implements the `Deref` trait, allowing instances of `Logger_API` to be
- * dereferenced to `Logger`, providing access to `Logger`'s methods without
- * having to manually access the underlying `Logger` instance.
- */
-typedef struct Logger_API {
-    struct Logger_t *_0;
-} Logger_API;
+typedef struct Logger_t {
+    TraderId_t trader_id;
+    char* component;
+    bool is_bypassed;
+} Logger_t;
 
 /**
  * Represents a time event occurring at the event timestamp.
@@ -415,30 +399,14 @@ enum LogColor log_color_from_cstr(const char *ptr);
  * # Safety
  *
  * - Assumes `trader_id_ptr` is a valid C string pointer.
- * - Assumes `machine_id_ptr` is a valid C string pointer.
- * - Assumes `instance_id_ptr` is a valid C string pointer.
  */
-struct Logger_API logger_new(const char *trader_id_ptr,
-                             const char *machine_id_ptr,
-                             const char *instance_id_ptr,
-                             enum LogLevel level_stdout,
-                             enum LogLevel level_file,
-                             uint8_t file_logging,
-                             const char *directory_ptr,
-                             const char *file_name_ptr,
-                             const char *file_format_ptr,
-                             const char *component_levels_ptr,
-                             uint8_t is_bypassed);
+struct Logger_t logger_new(const char *trader_id_ptr,
+                           const char *component_ptr,
+                           uint8_t is_bypassed);
 
-void logger_drop(struct Logger_API logger);
+const char *logger_get_trader_id_cstr(const struct Logger_t *logger);
 
-const char *logger_get_trader_id_cstr(const struct Logger_API *logger);
-
-const char *logger_get_machine_id_cstr(const struct Logger_API *logger);
-
-UUID4_t logger_get_instance_id(const struct Logger_API *logger);
-
-uint8_t logger_is_bypassed(const struct Logger_API *logger);
+uint8_t logger_is_bypassed(const struct Logger_t *logger);
 
 /**
  * Create a new log event.
@@ -448,11 +416,9 @@ uint8_t logger_is_bypassed(const struct Logger_API *logger);
  * - Assumes `component_ptr` is a valid C string pointer.
  * - Assumes `message_ptr` is a valid C string pointer.
  */
-void logger_log(struct Logger_API *logger,
-                uint64_t timestamp_ns,
+void logger_log(struct Logger_t *logger,
+                uint64_t _timestamp_ns,
                 enum LogLevel level,
-                enum LogColor color,
-                const char *component_ptr,
                 const char *message_ptr);
 
 struct TimeEventHandler_t dummy(struct TimeEventHandler_t v);
