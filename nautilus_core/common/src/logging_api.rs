@@ -17,7 +17,6 @@ use std::ffi::c_char;
 
 use nautilus_core::string::{cstr_to_string, str_to_cstr};
 use nautilus_model::identifiers::trader_id::TraderId;
-use ustr::Ustr;
 
 use crate::{enums::LogLevel, logging::Logger};
 
@@ -27,16 +26,8 @@ use crate::{enums::LogLevel, logging::Logger};
 ///
 /// - Assumes `trader_id_ptr` is a valid C string pointer.
 #[no_mangle]
-pub unsafe extern "C" fn logger_new(
-    trader_id_ptr: *const c_char,
-    component_ptr: *const c_char,
-    is_bypassed: u8,
-) -> Logger {
-    Logger::new(
-        TraderId::new(&cstr_to_string(trader_id_ptr)),
-        Ustr::from(&cstr_to_string(component_ptr)),
-        is_bypassed != 0,
-    )
+pub unsafe extern "C" fn logger_new(trader_id: TraderId, is_bypassed: u8) -> Logger {
+    Logger::new(trader_id, is_bypassed != 0)
 }
 
 #[no_mangle]
@@ -60,13 +51,14 @@ pub unsafe extern "C" fn logger_log(
     logger: &mut Logger,
     level: LogLevel,
     message_ptr: *const c_char,
+    component_ptr: *const c_char,
 ) {
     let message = cstr_to_string(message_ptr);
+    let component = cstr_to_string(component_ptr);
     match level {
-        LogLevel::Debug => logger.debug(message),
-        LogLevel::Info => logger.info(message),
-        LogLevel::Warning => logger.warn(message),
-        LogLevel::Error => logger.error(message),
-        _ => {} // TODO: remove critical level logging
+        LogLevel::Debug => logger.debug(&message, &component),
+        LogLevel::Info => logger.info(&message, &component),
+        LogLevel::Warning => logger.warn(&message, &component),
+        LogLevel::Error => logger.error(&message, &component),
     }
 }

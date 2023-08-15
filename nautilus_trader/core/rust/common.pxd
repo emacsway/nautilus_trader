@@ -84,7 +84,7 @@ cdef extern from "../includes/common.h":
         CYAN # = 4,
         # The yellow log color, typically used with [`LogLevel::Warning`] log levels.
         YELLOW # = 5,
-        # The red log color, typically used with [`LogLevel::Error`] or [`LogLevel::Critical`] log levels.
+        # The red log color, typically used with [`LogLevel::Error`] log levels.
         RED # = 6,
 
     # The log level for log messages.
@@ -97,8 +97,6 @@ cdef extern from "../includes/common.h":
         WARNING # = 30,
         # The **ERR** error log level.
         ERROR # = 40,
-        # The **CRT** critical log level.
-        CRITICAL # = 50,
 
     cdef struct LiveClock:
         pass
@@ -131,7 +129,6 @@ cdef extern from "../includes/common.h":
 
     cdef struct Logger_t:
         TraderId trader_id;
-        char* component;
         bool is_bypassed;
 
     # Represents a time event occurring at the event timestamp.
@@ -262,7 +259,7 @@ cdef extern from "../includes/common.h":
     # # Safety
     #
     # - Assumes `trader_id_ptr` is a valid C string pointer.
-    Logger_t logger_new(const char *trader_id_ptr, const char *component_ptr, uint8_t is_bypassed);
+    Logger_t logger_new(TraderId trader_id, uint8_t is_bypassed);
 
     const char *logger_get_trader_id_cstr(const Logger_t *logger);
 
@@ -274,7 +271,10 @@ cdef extern from "../includes/common.h":
     #
     # - Assumes `component_ptr` is a valid C string pointer.
     # - Assumes `message_ptr` is a valid C string pointer.
-    void logger_log(Logger_t *logger, LogLevel level, const char *message_ptr);
+    void logger_log(Logger_t *logger,
+                    LogLevel level,
+                    const char *message_ptr,
+                    const char *component_ptr);
 
     TimeEventHandler_t dummy(TimeEventHandler_t v);
 

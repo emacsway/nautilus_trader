@@ -66,36 +66,10 @@ cdef class Logger:
 
     Parameters
     ----------
-    clock : Clock
-        The clock for the logger.
     trader_id : TraderId, optional
         The trader ID for the logger.
-    machine_id : str, optional
-        The machine ID.
-    instance_id : UUID4, optional
-        The instance ID.
-    level_stdout : LogLevel, default ``INFO``
-        The minimum log level to write to stdout.
-    level_file : LogLevel, default ``DEBUG``
-        The minimum log level to write to a file.
-    file_logging : bool, default False
-        If logging to a file is enabled.
-    directory : str, optional
-        The path to the log file directory.
-        If ``None`` then will write to the current working directory.
-    file_name : str, optional
-        The custom log file name (will use a '.log' suffix for plain text or '.json' for JSON).
-        If ``None`` will not log to a file (unless `file_auto` is True).
-    file_format : str { 'JSON' }, optional
-        The log file format. If ``None`` (default) then will log in plain text.
-        If set to 'JSON' then logs will be in JSON format.
-    component_levels : dict[ComponentId, LogLevel]
-        The additional per component log level filters, where keys are component
-        IDs (e.g. actor/strategy IDs) and values are log levels.
     bypass : bool, default False
         If the log output is bypassed.
-    dummy : bool, default False
-        If logger is a 'dummy' logger (intended as a placeholder during initialization).
     """
 
     def __init__(
@@ -106,14 +80,9 @@ cdef class Logger:
     ):
         if trader_id is None:
             trader_id = TraderId("TRADER-000")
-        if component is None:
-            component = "core"
-
-        cdef str trader_id_str = trader_id.to_str()
 
         self._mem = logger_new(
-            pystr_to_cstr(trader_id_str),
-            pystr_to_cstr(component),
+            trader_id,
             bypass,
         )
 
@@ -155,11 +124,13 @@ cdef class Logger:
         self,
         LogLevel level,
         str message,
+        str component,
     ):
         logger_log(
             &self._mem,
             level,
             pystr_to_cstr(message),
+            pystr_to_cstr(component),
         )
 
 
@@ -236,6 +207,7 @@ cdef class LoggerAdapter:
     cpdef void debug(
         self,
         str message,
+        str component,
     ):
         """
         Log the given debug message with the logger.
@@ -258,10 +230,11 @@ cdef class LoggerAdapter:
         self._logger.log(
             LogLevel.DEBUG,
             message,
+            component,
         )
 
     cpdef void info(
-        self, str message,
+        self, str message, str component,
     ):
         """
         Log the given information message with the logger.
@@ -284,11 +257,13 @@ cdef class LoggerAdapter:
         self._logger.log(
             LogLevel.INFO,
             message,
+            component,
         )
 
     cpdef void warning(
         self,
         str message,
+        str component,
     ):
         """
         Log the given warning message with the logger.
@@ -311,11 +286,13 @@ cdef class LoggerAdapter:
         self._logger.log(
             LogLevel.WARNING,
             message,
+            component,
         )
 
     cpdef void error(
         self,
         str message,
+        str component,
     ):
         """
         Log the given error message with the logger.
@@ -338,40 +315,8 @@ cdef class LoggerAdapter:
         self._logger.log(
             LogLevel.ERROR,
             message,
+            component,
         )
-
-    cpdef void exception(
-        self,
-        str message,
-        ex,
-        dict annotations = None,
-    ):
-        """
-        Log the given exception including stack trace information.
-
-        Parameters
-        ----------
-        message : str
-            The log message content.
-        ex : Exception
-            The exception to log.
-        annotations : dict[str, object], optional
-            The annotations for the log record.
-
-        """
-        Condition.not_none(ex, "ex")
-
-        cdef str ex_string = f"{type(ex).__name__}({ex})"
-        ex_type, ex_value, ex_traceback = sys.exc_info()
-        stack_trace = traceback.format_exception(ex_type, ex_value, ex_traceback)
-
-        cdef str stack_trace_lines = ""
-        cdef str line
-        for line in stack_trace[:len(stack_trace) - 1]:
-            stack_trace_lines += line
-
-        self.error(f"{message}\n{ex_string}\n{stack_trace_lines}", annotations=annotations)
-
 
 cpdef void nautilus_header(LoggerAdapter logger):
     Condition.not_none(logger, "logger")

@@ -127,10 +127,6 @@ pub enum LogLevel {
     #[strum(serialize = "ERR", serialize = "ERROR")]
     #[serde(rename = "ERROR")]
     Error = 40,
-    /// The **CRT** critical log level.
-    #[strum(serialize = "CRT", serialize = "CRITICAL")]
-    #[serde(rename = "CRITICAL")]
-    Critical = 50,
 }
 
 // Override `strum` implementation
@@ -141,7 +137,6 @@ impl std::fmt::Display for LogLevel {
             LogLevel::Info => "INF",
             LogLevel::Warning => "WRN",
             LogLevel::Error => "ERR",
-            LogLevel::Critical => "CRT",
         };
         write!(f, "{display}")
     }
@@ -173,7 +168,7 @@ pub enum LogColor {
     /// The yellow log color, typically used with [`LogLevel::Warning`] log levels.
     #[strum(serialize = "\x1b[1;33m")]
     Yellow = 5,
-    /// The red log color, typically used with [`LogLevel::Error`] or [`LogLevel::Critical`] log levels.
+    /// The red log color, typically used with [`LogLevel::Error`] log levels.
     #[strum(serialize = "\x1b[1;31m")]
     Red = 6,
 }

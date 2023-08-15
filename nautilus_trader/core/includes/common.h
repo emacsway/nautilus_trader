@@ -162,7 +162,7 @@ typedef enum LogColor {
      */
     YELLOW = 5,
     /**
-     * The red log color, typically used with [`LogLevel::Error`] or [`LogLevel::Critical`] log levels.
+     * The red log color, typically used with [`LogLevel::Error`] log levels.
      */
     RED = 6,
 } LogColor;
@@ -187,10 +187,6 @@ typedef enum LogLevel {
      * The **ERR** error log level.
      */
     ERROR = 40,
-    /**
-     * The **CRT** critical log level.
-     */
-    CRITICAL = 50,
 } LogLevel;
 
 typedef struct LiveClock LiveClock;
@@ -228,7 +224,6 @@ typedef struct LiveClock_API {
 
 typedef struct Logger_t {
     TraderId_t trader_id;
-    char* component;
     bool is_bypassed;
 } Logger_t;
 
@@ -400,9 +395,7 @@ enum LogColor log_color_from_cstr(const char *ptr);
  *
  * - Assumes `trader_id_ptr` is a valid C string pointer.
  */
-struct Logger_t logger_new(const char *trader_id_ptr,
-                           const char *component_ptr,
-                           uint8_t is_bypassed);
+struct Logger_t logger_new(TraderId_t trader_id, uint8_t is_bypassed);
 
 const char *logger_get_trader_id_cstr(const struct Logger_t *logger);
 
@@ -416,7 +409,10 @@ uint8_t logger_is_bypassed(const struct Logger_t *logger);
  * - Assumes `component_ptr` is a valid C string pointer.
  * - Assumes `message_ptr` is a valid C string pointer.
  */
-void logger_log(struct Logger_t *logger, enum LogLevel level, const char *message_ptr);
+void logger_log(struct Logger_t *logger,
+                enum LogLevel level,
+                const char *message_ptr,
+                const char *component_ptr);
 
 struct TimeEventHandler_t dummy(struct TimeEventHandler_t v);
 
