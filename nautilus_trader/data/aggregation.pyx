@@ -22,7 +22,6 @@ from libc.stdint cimport uint64_t
 
 from nautilus_trader.common.clock cimport Clock
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.common.timer cimport TimeEvent
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.core.datetime cimport dt_to_unix_nanos
@@ -255,7 +254,7 @@ cdef class BarAggregator:
 
         self.bar_type = bar_type
         self._handler = handler
-        self._log = LoggerAdapter(
+        self._log = Logger(
             component_name=type(self).__name__,
             logger=logger,
         )

@@ -20,7 +20,7 @@ import fsspec
 import pyarrow as pa
 from pyarrow import RecordBatchStreamWriter
 
-from nautilus_trader.common.logging import LoggerAdapter
+from nautilus_trader.common.logging import Logger
 from nautilus_trader.core.correctness import PyCondition
 from nautilus_trader.core.data import Data
 from nautilus_trader.core.inspect import is_nautilus_class
@@ -43,7 +43,7 @@ class StreamingFeatherWriter:
     ----------
     path : str
         The path to persist the stream to.
-    logger : LoggerAdapter
+    logger : Logger
         The logger for the writer.
     fs_protocol : str, default 'file'
         The `fsspec` file system protocol.
@@ -57,7 +57,7 @@ class StreamingFeatherWriter:
     def __init__(
         self,
         path: str,
-        logger: LoggerAdapter,
+        logger: Logger,
         fs_protocol: Optional[str] = "file",
         flush_interval_ms: Optional[int] = None,
         replace: bool = False,

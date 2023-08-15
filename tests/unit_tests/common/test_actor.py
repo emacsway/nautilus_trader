@@ -24,7 +24,6 @@ from nautilus_trader.common.enums import ComponentState
 from nautilus_trader.common.enums import LogLevel
 from nautilus_trader.common.executor import TaskId
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.config import ActorConfig
 from nautilus_trader.config import ImportableActorConfig
 from nautilus_trader.core.data import Data
@@ -1952,7 +1951,7 @@ class TestActor:
         writer = StreamingFeatherWriter(
             path=catalog.path,
             fs_protocol=catalog.fs_protocol,
-            logger=LoggerAdapter(
+            logger=Logger(
                 component_name="Actor",
                 logger=self.logger,
             ),

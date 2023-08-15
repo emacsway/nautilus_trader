@@ -21,7 +21,6 @@ from nautilus_trader.common.enums import LogLevel
 from nautilus_trader.common.enums import log_level_from_str
 from nautilus_trader.common.enums import log_level_to_str
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 
 
 class TestLogLevel:
@@ -73,7 +72,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.DEBUG,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.debug("This is a log message.")
@@ -88,7 +87,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.INFO,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.info("This is a log message.")
@@ -103,7 +102,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.INFO,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         annotations = {"my_tag": "something"}
 
@@ -120,7 +119,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.INFO,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.info("This is a log message.", color=LogColor.BLUE)
@@ -135,7 +134,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.INFO,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.info("This is a log message.", color=LogColor.GREEN)
@@ -150,7 +149,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.WARNING,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.warning("This is a log message.")
@@ -165,7 +164,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.ERROR,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.error("This is a log message.")
@@ -180,7 +179,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.CRITICAL,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.critical("This is a log message.")
@@ -195,7 +194,7 @@ class TestLoggerTests:
             level_stdout=LogLevel.CRITICAL,
             bypass=True,
         )
-        logger_adapter = LoggerAdapter(component_name="TEST_LOGGER", logger=logger)
+        logger_adapter = Logger(component_name="TEST_LOGGER", logger=logger)
 
         # Act
         logger_adapter.exception("We intentionally divided by zero!", ZeroDivisionError("Oops"))

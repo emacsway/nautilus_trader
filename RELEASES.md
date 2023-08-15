@@ -1046,7 +1046,7 @@ Released on 11th March 2022 (UTC).
 - Added `LimitIfTouchedOrder` order type
 - Added `Order.has_price` property (convenience)
 - Added `Order.has_trigger_price` property (convenience)
-- Added `msg` param to `LoggerAdapter.exception()`
+- Added `msg` param to `Logger.exception()`
 - Added WebSocket `log_send` and `log_recv` config options
 - Added WebSocket `auto_ping_interval` (seconds) config option
 - Replaced `msgpack` with `msgspec` (faster drop in replacement https://github.com/jcrist/msgspec)

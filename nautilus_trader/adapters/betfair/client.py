@@ -63,7 +63,6 @@ from betfair_parser.spec.navigation import Menu
 from betfair_parser.spec.navigation import Navigation
 
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.core.nautilus_pyo3.network import HttpClient
 from nautilus_trader.core.nautilus_pyo3.network import HttpResponse
 from nautilus_trader.core.rust.common import LogColor
@@ -89,7 +88,7 @@ class BetfairHttpClient:
         # Client
         self._client = HttpClient()
         self._headers: dict[str, str] = {}
-        self._log = LoggerAdapter(type(self).__name__, logger)
+        self._log = logger.with_component(type(self).__name__)
         self.reset_headers()
 
     async def _request(self, method: Literal["GET", "POST"], request: Request) -> HttpResponse:

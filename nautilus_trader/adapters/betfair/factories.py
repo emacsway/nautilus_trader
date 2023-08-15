@@ -27,7 +27,6 @@ from nautilus_trader.adapters.betfair.providers import BetfairInstrumentProvider
 from nautilus_trader.cache.cache import Cache
 from nautilus_trader.common.clock import LiveClock
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.live.factories import LiveDataClientFactory
 from nautilus_trader.live.factories import LiveExecClientFactory
 from nautilus_trader.model.currency import Currency
@@ -81,7 +80,7 @@ def get_cached_betfair_client(
 
     key: str = "|".join((username, password, app_key))
     if key not in CLIENTS:
-        LoggerAdapter("BetfairFactory", logger).warning(
+        logger.with_component("BetfairFactory").warning(
             "Creating new instance of BetfairHttpClient",
         )
         client = BetfairHttpClient(
@@ -121,7 +120,7 @@ def get_cached_betfair_instrument_provider(
     """
     global INSTRUMENT_PROVIDER
     if INSTRUMENT_PROVIDER is None:
-        LoggerAdapter("BetfairFactory", logger).warning(
+        logger.with_component("BetfairFactory").warning(
             "Creating new instance of BetfairInstrumentProvider",
         )
         INSTRUMENT_PROVIDER = BetfairInstrumentProvider(

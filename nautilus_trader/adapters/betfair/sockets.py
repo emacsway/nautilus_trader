@@ -20,7 +20,6 @@ import msgspec
 
 from nautilus_trader.adapters.betfair.client import BetfairHttpClient
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.core.nautilus_pyo3.network import SocketClient
 
 
@@ -40,7 +39,7 @@ class BetfairStreamClient:
     def __init__(
         self,
         http_client: BetfairHttpClient,
-        logger_adapter: LoggerAdapter,
+        logger_adapter: Logger,
         message_handler: Callable[[bytes], None],
         host: Optional[str] = HOST,
         port: Optional[int] = None,
@@ -136,7 +135,7 @@ class BetfairOrderStreamClient(BetfairStreamClient):
     ):
         super().__init__(
             http_client=http_client,
-            logger_adapter=LoggerAdapter("BetfairOrderStreamClient", logger),
+            logger_adapter=logger.with_component("BetfairOrderStreamClient"),
             message_handler=message_handler,
             **kwargs,
         )
@@ -172,7 +171,7 @@ class BetfairMarketStreamClient(BetfairStreamClient):
     ):
         super().__init__(
             http_client=http_client,
-            logger_adapter=LoggerAdapter("BetfairMarketStreamClient", logger),
+            logger_adapter=logger.with_component("BetfairMarketStreamClient"),
             message_handler=message_handler,
             **kwargs,
         )

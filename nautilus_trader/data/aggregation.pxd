@@ -19,7 +19,7 @@ from libc.stdint cimport uint8_t
 from libc.stdint cimport uint64_t
 
 from nautilus_trader.common.clock cimport Clock
-from nautilus_trader.common.logging cimport LoggerAdapter
+from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.common.timer cimport TimeEvent
 from nautilus_trader.model.data.bar cimport Bar
 from nautilus_trader.model.data.bar cimport BarType
@@ -59,7 +59,7 @@ cdef class BarBuilder:
 
 
 cdef class BarAggregator:
-    cdef LoggerAdapter _log
+    cdef Logger _log
     cdef BarBuilder _builder
     cdef object _handler
 

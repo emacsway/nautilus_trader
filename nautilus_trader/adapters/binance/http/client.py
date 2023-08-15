@@ -25,7 +25,6 @@ from nautilus_trader.adapters.binance.http.error import BinanceClientError
 from nautilus_trader.adapters.binance.http.error import BinanceServerError
 from nautilus_trader.common.clock import LiveClock
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.core.nautilus_pyo3.network import HttpClient
 from nautilus_trader.core.nautilus_pyo3.network import HttpResponse
 
@@ -57,7 +56,7 @@ class BinanceHttpClient:
         base_url: str,
     ):
         self._clock: LiveClock = clock
-        self._log: LoggerAdapter = LoggerAdapter(type(self).__name__, logger=logger)
+        self._log: Logger = logger.with_component(type(self).__name__)
         self._key: str = key
 
         self._base_url: str = base_url

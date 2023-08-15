@@ -148,7 +148,7 @@ cdef class OrderMatchingEngine:
         # auction_match_algo = default_auction_match
     ):
         self._clock = clock
-        self._log = LoggerAdapter(
+        self._log = Logger(
             component_name=f"{type(self).__name__}({instrument.id.venue})",
             logger=logger,
         )
@@ -1902,7 +1902,7 @@ cdef class OrderMatchingEngine:
             self.fill_limit_order(order)
 
     cdef void _update_contingent_orders(self, Order order):
-        self._log.debug(f"Updating OUO orders from {order.client_order_id}", LogColor.MAGENTA)
+        self._log.debug(f"Updating OUO orders from {order.client_order_id}")
         cdef ClientOrderId client_order_id
         cdef Order ouo_order
         for client_order_id in order.linked_order_ids:

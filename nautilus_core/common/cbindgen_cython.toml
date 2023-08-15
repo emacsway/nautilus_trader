@@ -23,6 +23,9 @@ header = '"../includes/common.h"'
     "CVec",
     "UUID4_t",
 ]
+"nautilus_trader.core.rust.model" = [
+    "TraderId_t",
+]
 
 [enum]
 rename_variants = "ScreamingSnakeCase"
@@ -37,3 +40,4 @@ rename_variants = "ScreamingSnakeCase"
 "UUID4" = "UUID4_t"
 "Logger" = "Logger_t"
 "TestTimer" = "TestTimer_t"
+"TraderId" = "TraderId_t"

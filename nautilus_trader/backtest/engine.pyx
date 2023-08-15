@@ -47,7 +47,6 @@ from nautilus_trader.common.clock cimport LiveClock
 from nautilus_trader.common.clock cimport TestClock
 from nautilus_trader.common.enums_c cimport log_level_from_str
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.common.logging cimport log_memory
 from nautilus_trader.common.timer cimport TimeEvent
 from nautilus_trader.common.timer cimport TimeEventHandler
@@ -140,7 +139,7 @@ cdef class BacktestEngine:
         self._data_engine: DataEngine = self._kernel.data_engine
 
         # Setup engine logging
-        self._log = LoggerAdapter(
+        self._log = Logger(
             component_name=type(self).__name__,
             logger=self._kernel.logger,
         )
@@ -742,7 +741,8 @@ cdef class BacktestEngine:
             self.end()
 
         # Change logger clock back to live clock for consistent time stamping
-        self.kernel.logger.change_clock(self._clock)
+        # TODO: Logger doesn't have clock anymore is that a problem
+        # self.kernel.logger.change_clock(self._clock)
 
         # Reset DataEngine
         if self.kernel.data_engine.is_running:
@@ -1000,7 +1000,8 @@ cdef class BacktestEngine:
             self._kernel.start()
 
             # Change logger clock for the run
-            self._kernel.logger.change_clock(self.kernel.clock)
+            # TODO: Logger doesn't have a clock anymore is that a problem
+            # self._kernel.logger.change_clock(self.kernel.clock)
             self._log_pre_run()
 
         self._log_run(start, end)

@@ -30,7 +30,6 @@ from nautilus_trader.accounting.calculators cimport ExchangeRateCalculator
 from nautilus_trader.cache.base cimport CacheFacade
 from nautilus_trader.common.logging cimport LogColor
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.core.rust.core cimport unix_timestamp
 from nautilus_trader.core.rust.core cimport unix_timestamp_us
@@ -98,7 +97,7 @@ cdef class Cache(CacheFacade):
         Condition.type(config, CacheConfig, "config")
 
         self._database = database
-        self._log = LoggerAdapter(component_name=type(self).__name__, logger=logger)
+        self._log = logger.with_component(type(self).__name__)
         self._xrate_calculator = ExchangeRateCalculator()
 
         # Configuration
@@ -173,7 +172,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._general)
         self._log.info(
             f"Cached {count} general object{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._general else LogColor.NORMAL,
         )
 
     cpdef void cache_currencies(self):
@@ -196,7 +194,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._currencies)
         self._log.info(
             f"Cached {count} currenc{'y' if count == 1 else 'ies'} from database.",
-            color=LogColor.BLUE if self._currencies else LogColor.NORMAL,
         )
 
     cpdef void cache_instruments(self):
@@ -214,7 +211,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._instruments)
         self._log.info(
             f"Cached {count} instrument{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._instruments else LogColor.NORMAL,
         )
 
     cpdef void cache_synthetics(self):
@@ -232,7 +228,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._synthetics)
         self._log.info(
             f"Cached {count} synthetic instrument{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._synthetics else LogColor.NORMAL,
         )
 
     cpdef void cache_accounts(self):
@@ -250,7 +245,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._accounts)
         self._log.info(
             f"Cached {count} account{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._accounts else LogColor.NORMAL,
         )
 
     cpdef void cache_orders(self):
@@ -275,7 +269,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._orders)
         self._log.info(
             f"Cached {count} order{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._orders else LogColor.NORMAL,
         )
 
     cpdef void cache_order_lists(self):
@@ -312,7 +305,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._order_lists)
         self._log.info(
             f"Cached {count} order list{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._order_lists else LogColor.NORMAL,
         )
 
     cpdef void cache_positions(self):
@@ -330,7 +322,6 @@ cdef class Cache(CacheFacade):
         cdef int count = len(self._positions)
         self._log.info(
             f"Cached {count} position{'' if count == 1 else 's'} from database.",
-            color=LogColor.BLUE if self._positions else LogColor.NORMAL
         )
 
     cpdef void build_index(self):
@@ -633,7 +624,6 @@ cdef class Cache(CacheFacade):
         if error_count == 0:
             self._log.info(
                 f"Integrity check passed in {total_us}μs.",
-                color=LogColor.GREEN
             )
             return True
         else:

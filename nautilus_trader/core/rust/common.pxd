@@ -3,6 +3,7 @@
 from cpython.object cimport PyObject
 from libc.stdint cimport uint8_t, uint64_t, uintptr_t
 from nautilus_trader.core.rust.core cimport CVec, UUID4_t
+from nautilus_trader.core.rust.model cimport TraderId_t
 
 cdef extern from "../includes/common.h":
 
@@ -128,8 +129,8 @@ cdef extern from "../includes/common.h":
         LiveClock *_0;
 
     cdef struct Logger_t:
-        TraderId trader_id;
-        bool is_bypassed;
+        TraderId_t trader_id;
+        char* component;
 
     # Represents a time event occurring at the event timestamp.
     cdef struct TimeEvent_t:
@@ -259,11 +260,9 @@ cdef extern from "../includes/common.h":
     # # Safety
     #
     # - Assumes `trader_id_ptr` is a valid C string pointer.
-    Logger_t logger_new(TraderId trader_id, uint8_t is_bypassed);
+    Logger_t logger_new(TraderId_t trader_id, const char *component_ptr);
 
     const char *logger_get_trader_id_cstr(const Logger_t *logger);
-
-    uint8_t logger_is_bypassed(const Logger_t *logger);
 
     # Create a new log event.
     #
@@ -271,10 +270,7 @@ cdef extern from "../includes/common.h":
     #
     # - Assumes `component_ptr` is a valid C string pointer.
     # - Assumes `message_ptr` is a valid C string pointer.
-    void logger_log(Logger_t *logger,
-                    LogLevel level,
-                    const char *message_ptr,
-                    const char *component_ptr);
+    void logger_log(Logger_t *logger, LogLevel level, const char *message_ptr);
 
     TimeEventHandler_t dummy(TimeEventHandler_t v);
 

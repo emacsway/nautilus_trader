@@ -18,7 +18,6 @@ from typing import Callable
 from nautilus_trader.common.clock cimport Clock
 from nautilus_trader.common.enums_c cimport ComponentTrigger
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.core.fsm cimport FiniteStateMachine
 from nautilus_trader.model.identifiers cimport Identifier
 from nautilus_trader.model.identifiers cimport TraderId
@@ -33,7 +32,7 @@ cdef class ComponentFSMFactory:
 
 cdef class Component:
     cdef readonly Clock _clock
-    cdef readonly LoggerAdapter _log
+    cdef readonly Logger _log
     cdef readonly MessageBus _msgbus
     cdef FiniteStateMachine _fsm
     cdef dict _config

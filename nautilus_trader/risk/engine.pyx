@@ -29,7 +29,6 @@ from nautilus_trader.common.component cimport Component
 from nautilus_trader.common.logging cimport CMD
 from nautilus_trader.common.logging cimport EVT
 from nautilus_trader.common.logging cimport RECV
-from nautilus_trader.common.logging cimport LogColor
 from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.common.messages cimport TradingStateChanged
 from nautilus_trader.common.throttler cimport Throttler
@@ -154,7 +153,6 @@ cdef class RiskEngine(Component):
         self._log.info(
             f"Set MAX_ORDER_SUBMIT_RATE: "
             f"{order_submit_rate_limit}/{str(order_submit_rate_interval).replace('0 days ', '')}.",
-            color=LogColor.BLUE,
         )
 
         pieces = config.max_order_modify_rate.split("/")
@@ -173,7 +171,6 @@ cdef class RiskEngine(Component):
         self._log.info(
             f"Set MAX_ORDER_MODIFY_RATE: "
             f"{order_modify_rate_limit}/{str(order_modify_rate_interval).replace('0 days ', '')}.",
-            color=LogColor.BLUE,
         )
 
         # Risk settings
@@ -258,20 +255,13 @@ cdef class RiskEngine(Component):
         self._log_state()
 
     cpdef void _log_state(self):
-        cdef LogColor color = LogColor.BLUE
-        if self.trading_state == TradingState.REDUCING:
-            color = LogColor.YELLOW
-        elif self.trading_state == TradingState.HALTED:
-            color = LogColor.RED
         self._log.info(
             f"TradingState is {trading_state_to_str(self.trading_state)}.",
-            color=color,
         )
 
         if self.is_bypassed:
             self._log.info(
                 "PRE-TRADE RISK CHECKS BYPASSED. This is not advisable for live trading.",
-                color=LogColor.RED,
             )
 
     cpdef void set_max_notional_per_order(self, InstrumentId instrument_id, new_value):
@@ -307,7 +297,6 @@ cdef class RiskEngine(Component):
         cdef str new_value_str = f"{new_value:,}" if new_value is not None else str(None)
         self._log.info(
             f"Set MAX_NOTIONAL_PER_ORDER: {instrument_id} {new_value_str}.",
-            color=LogColor.BLUE,
         )
 
 # -- RISK SETTINGS --------------------------------------------------------------------------------
@@ -394,7 +383,7 @@ cdef class RiskEngine(Component):
 
     cpdef void _execute_command(self, Command command):
         if self.debug:
-            self._log.debug(f"{RECV}{CMD} {command}.", LogColor.MAGENTA)
+            self._log.debug(f"{RECV}{CMD} {command}.")
         self.command_count += 1
 
         if isinstance(command, SubmitOrder):
@@ -920,5 +909,5 @@ cdef class RiskEngine(Component):
 
     cpdef void _handle_event(self, Event event):
         if self.debug:
-            self._log.debug(f"{RECV}{EVT} {event}.", LogColor.MAGENTA)
+            self._log.debug(f"{RECV}{EVT} {event}.")
         self.event_count += 1

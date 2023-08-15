@@ -26,18 +26,14 @@ use crate::{enums::LogLevel, logging::Logger};
 ///
 /// - Assumes `trader_id_ptr` is a valid C string pointer.
 #[no_mangle]
-pub unsafe extern "C" fn logger_new(trader_id: TraderId, is_bypassed: u8) -> Logger {
-    Logger::new(trader_id, is_bypassed != 0)
+pub unsafe extern "C" fn logger_new(trader_id: TraderId, component_ptr: *const c_char) -> Logger {
+    let component = cstr_to_string(component_ptr).into();
+    Logger::new(trader_id, component)
 }
 
 #[no_mangle]
 pub extern "C" fn logger_get_trader_id_cstr(logger: &Logger) -> *const c_char {
     str_to_cstr(&logger.trader_id.to_string())
-}
-
-#[no_mangle]
-pub extern "C" fn logger_is_bypassed(logger: &Logger) -> u8 {
-    logger.is_bypassed as u8
 }
 
 /// Create a new log event.
@@ -51,14 +47,12 @@ pub unsafe extern "C" fn logger_log(
     logger: &mut Logger,
     level: LogLevel,
     message_ptr: *const c_char,
-    component_ptr: *const c_char,
 ) {
     let message = cstr_to_string(message_ptr);
-    let component = cstr_to_string(component_ptr);
     match level {
-        LogLevel::Debug => logger.debug(&message, &component),
-        LogLevel::Info => logger.info(&message, &component),
-        LogLevel::Warning => logger.warn(&message, &component),
-        LogLevel::Error => logger.error(&message, &component),
+        LogLevel::Debug => logger.debug(&message),
+        LogLevel::Info => logger.info(&message),
+        LogLevel::Warning => logger.warn(&message),
+        LogLevel::Error => logger.error(&message),
     }
 }

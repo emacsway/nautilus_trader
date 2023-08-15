@@ -36,11 +36,7 @@ from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.core.rust.common cimport LogColor
 from nautilus_trader.core.rust.common cimport LogLevel
-from nautilus_trader.core.rust.common cimport logger_drop
-from nautilus_trader.core.rust.common cimport logger_get_instance_id
-from nautilus_trader.core.rust.common cimport logger_get_machine_id_cstr
 from nautilus_trader.core.rust.common cimport logger_get_trader_id_cstr
-from nautilus_trader.core.rust.common cimport logger_is_bypassed
 from nautilus_trader.core.rust.common cimport logger_log
 from nautilus_trader.core.rust.common cimport logger_new
 from nautilus_trader.core.string cimport cstr_to_pystr
@@ -68,6 +64,8 @@ cdef class Logger:
     ----------
     trader_id : TraderId, optional
         The trader ID for the logger.
+    component : str, optional
+        The component to which the logger belongs
     bypass : bool, default False
         If the log output is bypassed.
     """
@@ -80,11 +78,14 @@ cdef class Logger:
     ):
         if trader_id is None:
             trader_id = TraderId("TRADER-000")
+        if component is None:
+            component = "core"
 
         self._mem = logger_new(
             trader_id,
-            bypass,
+            pystr_to_cstr(component),
         )
+        self.is_bypassed = bypass
 
     @property
     def trader_id(self) -> TraderId:
@@ -99,77 +100,6 @@ cdef class Logger:
         return TraderId(cstr_to_pystr(logger_get_trader_id_cstr(&self._mem)))
 
     @property
-    def is_bypassed(self) -> bool:
-        """
-        Return whether the logger is in bypass mode.
-
-        Returns
-        -------
-        bool
-
-        """
-        return logger_is_bypassed(&self._mem)
-
-    cdef void log(
-        self,
-        LogLevel level,
-        str message,
-    ):
-        self._log(
-            level,
-            message,
-        )
-
-    cdef void _log(
-        self,
-        LogLevel level,
-        str message,
-        str component,
-    ):
-        logger_log(
-            &self._mem,
-            level,
-            pystr_to_cstr(message),
-            pystr_to_cstr(component),
-        )
-
-
-cdef class LoggerAdapter:
-    """
-    Provides an adapter for a components logger.
-
-    Parameters
-    ----------
-    component_name : str
-        The name of the component.
-    logger : Logger
-        The logger for the component.
-    """
-
-    def __init__(
-        self,
-        str component_name not None,
-        Logger logger not None,
-    ):
-        Condition.valid_string(component_name, "component_name")
-
-        self._logger = logger
-        self._component = component_name
-        self._is_bypassed = logger.is_bypassed
-
-    @property
-    def trader_id(self) -> TraderId:
-        """
-        Return the loggers trader ID.
-
-        Returns
-        -------
-        TraderId
-
-        """
-        return self._logger.trader_id
-
-    @property
     def component(self) -> str:
         """
         Return the loggers component name.
@@ -181,33 +111,20 @@ cdef class LoggerAdapter:
         """
         return self._component
 
-    @property
-    def is_bypassed(self) -> str:
-        """
-        Return whether the logger is in bypass mode.
-
-        Returns
-        -------
-        str
-
-        """
-        return self._is_bypassed
-
-    cpdef Logger get_logger(self):
-        """
-        Return the encapsulated logger.
-
-        Returns
-        -------
-        Logger
-
-        """
-        return self._logger
+    cdef void log(
+        self,
+        LogLevel level,
+        str message,
+    ):
+        logger_log(
+            &self._mem,
+            level,
+            pystr_to_cstr(message),
+        )
 
     cpdef void debug(
         self,
         str message,
-        str component,
     ):
         """
         Log the given debug message with the logger.
@@ -227,14 +144,13 @@ cdef class LoggerAdapter:
         if self.is_bypassed:
             return
 
-        self._logger.log(
+        self.log(
             LogLevel.DEBUG,
             message,
-            component,
         )
 
     cpdef void info(
-        self, str message, str component,
+        self, str message,
     ):
         """
         Log the given information message with the logger.
@@ -254,16 +170,14 @@ cdef class LoggerAdapter:
         if self.is_bypassed:
             return
 
-        self._logger.log(
+        self.log(
             LogLevel.INFO,
             message,
-            component,
         )
 
     cpdef void warning(
         self,
         str message,
-        str component,
     ):
         """
         Log the given warning message with the logger.
@@ -283,16 +197,14 @@ cdef class LoggerAdapter:
         if self.is_bypassed:
             return
 
-        self._logger.log(
+        self.log(
             LogLevel.WARNING,
             message,
-            component,
         )
 
     cpdef void error(
         self,
         str message,
-        str component,
     ):
         """
         Log the given error message with the logger.
@@ -312,13 +224,15 @@ cdef class LoggerAdapter:
         if self.is_bypassed:
             return
 
-        self._logger.log(
+        self.log(
             LogLevel.ERROR,
             message,
-            component,
         )
 
-cpdef void nautilus_header(LoggerAdapter logger):
+    cpdef Logger with_component(self, str component):
+        return Logger(self.trader_id, component)
+
+cpdef void nautilus_header(Logger logger):
     Condition.not_none(logger, "logger")
     print("")  # New line to begin
     logger.info("\033[36m=================================================================")
@@ -387,7 +301,7 @@ cpdef void nautilus_header(LoggerAdapter logger):
 
     logger.info("\033[36m=================================================================")
 
-cpdef void log_memory(LoggerAdapter logger):
+cpdef void log_memory(Logger logger):
     logger.info("\033[36m=================================================================")
     logger.info("\033[36m MEMORY USAGE")
     logger.info("\033[36m=================================================================")

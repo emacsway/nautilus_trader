@@ -21,7 +21,6 @@ from libc.stdint cimport uint64_t
 from nautilus_trader.accounting.accounts.base cimport Account
 from nautilus_trader.common.actor cimport Actor
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.execution.messages cimport SubmitOrder
 from nautilus_trader.execution.messages cimport SubmitOrderList
 from nautilus_trader.model.identifiers cimport AccountId
@@ -58,7 +57,7 @@ cdef class CacheDatabase:
         Logger logger not None,
         config: Optional[CacheDatabaseConfig] = None,
     ):
-        self._log = LoggerAdapter(component_name=type(self).__name__, logger=logger)
+        self._log = logger.with_component(type(self).__name__)
 
         self._log.info("READY.")
 

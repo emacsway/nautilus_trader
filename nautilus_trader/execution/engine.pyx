@@ -47,7 +47,6 @@ from nautilus_trader.common.generators cimport PositionIdGenerator
 from nautilus_trader.common.logging cimport CMD
 from nautilus_trader.common.logging cimport EVT
 from nautilus_trader.common.logging cimport RECV
-from nautilus_trader.common.logging cimport LogColor
 from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.core.fsm cimport InvalidStateTrigger
@@ -722,7 +721,7 @@ cdef class ExecutionEngine(Component):
 
     cpdef void _execute_command(self, TradingCommand command):
         if self.debug:
-            self._log.debug(f"{RECV}{CMD} {command}.", LogColor.MAGENTA)
+            self._log.debug(f"{RECV}{CMD} {command}.")
         self.command_count += 1
 
         cdef ExecutionClient client = self._clients.get(command.client_id)
@@ -836,7 +835,7 @@ cdef class ExecutionEngine(Component):
 
     cpdef void _handle_event(self, OrderEvent event):
         if self.debug:
-            self._log.debug(f"{RECV}{EVT} {event}.", LogColor.MAGENTA)
+            self._log.debug(f"{RECV}{EVT} {event}.")
         self.event_count += 1
 
         # Fetch Order from cache
@@ -880,7 +879,6 @@ cdef class ExecutionEngine(Component):
             event.set_client_order_id(client_order_id)
             self._log.info(
                 f"Order with {repr(client_order_id)} was found in the cache.",
-                color=LogColor.GREEN,
             )
 
         cdef OmsType oms_type
@@ -913,7 +911,6 @@ cdef class ExecutionEngine(Component):
             self._log.debug(
                 f"Determining position ID for {repr(fill.client_order_id)}, "
                 f"position_id={repr(position_id)}.",
-                LogColor.MAGENTA,
             )
         if position_id is not None:
             if fill.position_id is not None and fill.position_id != position_id:
@@ -925,7 +922,7 @@ cdef class ExecutionEngine(Component):
             # Assign position ID to fill
             fill.position_id = position_id
             if self.debug:
-                self._log.debug(f"Assigned {repr(position_id)} to {fill}.", LogColor.MAGENTA)
+                self._log.debug(f"Assigned {repr(position_id)} to {fill}.")
             return
 
         # TODO(cs): Optimize away the need to fetch order from cache
@@ -961,7 +958,7 @@ cdef class ExecutionEngine(Component):
                 primary.client_order_id,
                 primary.strategy_id,
             )
-            self._log.debug(f"Assigned primary order {repr(position_id)}.", LogColor.MAGENTA)
+            self._log.debug(f"Assigned primary order {repr(position_id)}.")
 
     cpdef PositionId _determine_hedging_position_id(self, OrderFilled fill):
         if fill.position_id is not None:
@@ -981,14 +978,14 @@ cdef class ExecutionEngine(Component):
             exec_spawn_orders = self._cache.orders_for_exec_spawn(order.exec_spawn_id)
             for spawned_order in exec_spawn_orders:
                 if spawned_order.position_id is not None:
-                    self._log.debug(f"Found spawned {repr(spawned_order.position_id)} for {fill}.", LogColor.MAGENTA)
+                    self._log.debug(f"Found spawned {repr(spawned_order.position_id)} for {fill}.")
                     # Use position ID for execution spawn
                     return order.position_id
 
         # Assign new position ID
         position_id = self._pos_id_generator.generate(fill.strategy_id)
         if self.debug:
-            self._log.debug(f"Generated {repr(position_id)} for {fill}.", LogColor.MAGENTA)
+            self._log.debug(f"Generated {repr(position_id)} for {fill}.")
         return position_id
 
     cpdef PositionId _determine_netting_position_id(self, OrderFilled fill):

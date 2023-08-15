@@ -157,7 +157,7 @@ cdef class SimulatedExchange:
             Condition.true(account_type == AccountType.MARGIN, "leverages defined when account type is not `MARGIN`")
 
         self._clock = clock
-        self._log = LoggerAdapter(
+        self._log = Logger(
             component_name=f"{type(self).__name__}({venue})",
             logger=logger,
         )

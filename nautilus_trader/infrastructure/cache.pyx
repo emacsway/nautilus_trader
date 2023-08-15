@@ -194,7 +194,7 @@ cdef class RedisCacheDatabase(CacheDatabase):
         """
         self._log.debug("Flushing database....")
         self._redis.flushdb()
-        self._log.info("Flushed database.", LogColor.BLUE)
+        self._log.info("Flushed database.")
 
     cpdef dict load(self):
         """

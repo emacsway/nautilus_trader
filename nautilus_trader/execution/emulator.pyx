@@ -26,7 +26,6 @@ from nautilus_trader.common.logging cimport CMD
 from nautilus_trader.common.logging cimport EVT
 from nautilus_trader.common.logging cimport RECV
 from nautilus_trader.common.logging cimport SENT
-from nautilus_trader.common.logging cimport LogColor
 from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.core.message cimport Event
@@ -202,7 +201,7 @@ cdef class OrderEmulator(Actor):
         """
         Condition.not_none(event, "event")
 
-        self._log.debug(f"{RECV}{EVT} {event}.", LogColor.MAGENTA)
+        self._log.debug(f"{RECV}{EVT} {event}.")
         self.event_count += 1
 
         if isinstance(event, OrderRejected):
@@ -245,7 +244,7 @@ cdef class OrderEmulator(Actor):
         """
         Condition.not_none(command, "command")
 
-        self._log.debug(f"{RECV}{CMD} {command}.", LogColor.MAGENTA)
+        self._log.debug(f"{RECV}{CMD} {command}.")
         self.command_count += 1
 
         if isinstance(command, SubmitOrder):
@@ -394,7 +393,7 @@ cdef class OrderEmulator(Actor):
             msg=event,
         )
 
-        self.log.info(f"Emulating {command.order}.", LogColor.MAGENTA)
+        self.log.info(f"Emulating {command.order}.")
 
     cdef void _handle_submit_order_list(self, SubmitOrderList command):
         self._check_monitoring(command.strategy_id, command.position_id)
@@ -512,7 +511,7 @@ cdef class OrderEmulator(Actor):
             self._msgbus.subscribe(topic=f"events.order.{strategy_id.to_str()}", handler=self.on_event)
             self._msgbus.subscribe(topic=f"events.position.{strategy_id.to_str()}", handler=self.on_event)
             self._subscribed_strategies.add(strategy_id)
-            self._log.info(f"Subscribed to strategy {strategy_id.to_str()} order and position events.", LogColor.BLUE)
+            self._log.info(f"Subscribed to strategy {strategy_id.to_str()} order and position events.")
 
         if position_id is not None and position_id not in self._monitored_positions:
             self._monitored_positions.add(position_id)
@@ -702,7 +701,6 @@ cdef class OrderEmulator(Actor):
                     filled_qty = Quantity.from_raw_c(raw_filled_qty, order.filled_qty._mem.precision)
                     self._log.info(
                         f"Updating quantity for {child_order} to {filled_qty}.",
-                        LogColor.MAGENTA,
                     )
                     self._update_order_quantity(child_order, filled_qty)
         elif order.contingency_type == ContingencyType.OCO:
@@ -849,7 +847,7 @@ cdef class OrderEmulator(Actor):
 
         self._send_risk_event(event)
 
-        self.log.info(f"Releasing {transformed}...", LogColor.MAGENTA)
+        self.log.info(f"Releasing {transformed}...")
 
         # Publish event
         self._msgbus.publish_c(
@@ -924,7 +922,7 @@ cdef class OrderEmulator(Actor):
 
         self._send_risk_event(event)
 
-        self.log.info(f"Releasing {transformed}...", LogColor.MAGENTA)
+        self.log.info(f"Releasing {transformed}...")
 
         # Publish event
         self._msgbus.publish_c(
@@ -939,7 +937,7 @@ cdef class OrderEmulator(Actor):
 
     cpdef void on_quote_tick(self, QuoteTick tick):
         if not self._log.is_bypassed:
-            self._log.debug(f"Processing {repr(tick)}...", LogColor.CYAN)
+            self._log.debug(f"Processing {repr(tick)}...")
 
         cdef MatchingCore matching_core = self._matching_cores.get(tick.instrument_id)
         if matching_core is None:
@@ -953,7 +951,7 @@ cdef class OrderEmulator(Actor):
 
     cpdef void on_trade_tick(self, TradeTick tick):
         if not self._log.is_bypassed:
-            self._log.debug(f"Processing {repr(tick)}...", LogColor.CYAN)
+            self._log.debug(f"Processing {repr(tick)}...")
 
         cdef MatchingCore matching_core = self._matching_cores.get(tick.instrument_id)
         if matching_core is None:

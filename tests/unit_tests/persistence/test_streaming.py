@@ -23,7 +23,6 @@ from nautilus_trader.adapters.betfair.providers import BetfairInstrumentProvider
 from nautilus_trader.backtest.node import BacktestNode
 from nautilus_trader.common.clock import LiveClock
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.config import BacktestDataConfig
 from nautilus_trader.config import BacktestEngineConfig
 from nautilus_trader.config import BacktestRunConfig
@@ -52,7 +51,7 @@ class TestPersistenceStreaming:
         self.fs = self.catalog.fs
         self._load_data_into_catalog()
         self._logger = Logger(clock=LiveClock())
-        self.logger = LoggerAdapter("test", logger=self._logger)
+        self.logger = Logger("test", logger=self._logger)
 
     def _load_data_into_catalog(self):
         self.instrument_provider = BetfairInstrumentProvider.from_instruments([])

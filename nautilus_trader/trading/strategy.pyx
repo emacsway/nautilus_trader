@@ -1049,7 +1049,6 @@ cdef class Strategy(Actor):
 
         self._log.info(
             f"Canceling managed GTD expiry timer for {order.client_order_id}{expire_time_str}.",
-            LogColor.BLUE,
         )
         self._clock.cancel_timer(name=timer_name)
 
@@ -1063,7 +1062,6 @@ cdef class Strategy(Actor):
     cdef void _set_gtd_expiry(self, Order order):
         self._log.info(
             f"Setting managed GTD expiry timer for {order.client_order_id} @ {order.expire_time.isoformat()}.",
-            LogColor.BLUE,
         )
         cdef str timer_name = self._get_gtd_expiry_timer_name(order.client_order_id)
         self._clock.set_time_alert_ns(
@@ -1086,7 +1084,7 @@ cdef class Strategy(Actor):
             self._log.warning(f"GTD expired order {order.client_order_id} was already closed.")
             return  # Already closed
 
-        self._log.info(f"Expiring GTD order {order.client_order_id}.", LogColor.BLUE)
+        self._log.info(f"Expiring GTD order {order.client_order_id}.")
         self.cancel_order(order)
 
     # -- HANDLERS -------------------------------------------------------------------------------------

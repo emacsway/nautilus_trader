@@ -20,7 +20,7 @@ from libc.stdint cimport uint64_t
 from nautilus_trader.common.clock cimport Clock
 from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.core.rust.common cimport LogColor
-from nautilus_trader.core.rust.common cimport Logger_API
+from nautilus_trader.core.rust.common cimport Logger_t
 from nautilus_trader.core.rust.common cimport LogLevel
 
 
@@ -35,43 +35,21 @@ cdef str RES
 
 
 cdef class Logger:
-    cdef Logger_API _mem
-    cdef Clock _clock
+    cdef Logger_t _mem
+    cdef bint is_bypassed
 
-    cpdef void change_clock(self, Clock clock)
     cdef void log(
         self,
-        uint64_t timestamp,
         LogLevel level,
-        LogColor color,
-        str component,
         str message,
-        dict annotations=*,
-    )
-    cdef void _log(
-        self,
-        uint64_t timestamp,
-        LogLevel level,
-        LogColor color,
-        str component,
-        str message,
-        dict annotations,
     )
 
-
-cdef class LoggerAdapter:
-    cdef Logger _logger
-    cdef str _component
-    cdef bint _is_bypassed
-
-    cpdef Logger get_logger(self)
-    cpdef void debug(self, str message, LogColor color=*, dict annotations=*)
-    cpdef void info(self, str message, LogColor color=*, dict annotations=*)
-    cpdef void warning(self, str message, LogColor color=*, dict annotations=*)
-    cpdef void error(self, str message, LogColor color=*, dict annotations=*)
-    cpdef void critical(self, str message, LogColor color=*, dict annotations=*)
-    cpdef void exception(self, str message, ex, dict annotations=*)
+    cpdef void debug(self, str message)
+    cpdef void info(self, str message)
+    cpdef void warning(self, str message)
+    cpdef void error(self, str message)
+    cpdef Logger with_component(self, str component)
 
 
-cpdef void nautilus_header(LoggerAdapter logger)
-cpdef void log_memory(LoggerAdapter logger)
+cpdef void nautilus_header(Logger logger)
+cpdef void log_memory(Logger logger)

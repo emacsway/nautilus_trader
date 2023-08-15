@@ -73,7 +73,7 @@ cdef class SimulationModule(Actor):
         """Abstract method (implement in subclass)."""
         raise NotImplementedError("method must be implemented in the subclass")  # pragma: no cover
 
-    cpdef void log_diagnostics(self, LoggerAdapter log):
+    cpdef void log_diagnostics(self, Logger log):
         """Abstract method (implement in subclass)."""
         raise NotImplementedError("method must be implemented in the subclass")  # pragma: no cover
 
@@ -204,13 +204,13 @@ cdef class FXRolloverInterestModule(SimulationModule):
 
             self.exchange.adjust_account(Money(-rollover, currency))
 
-    cpdef void log_diagnostics(self, LoggerAdapter log):
+    cpdef void log_diagnostics(self, Logger log):
         """
         Log diagnostics out to the `BacktestEngine` logger.
 
         Parameters
         ----------
-        log : LoggerAdapter
+        log : Logger
             The logger to log to.
 
         """

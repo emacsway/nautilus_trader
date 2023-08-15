@@ -224,7 +224,7 @@ typedef struct LiveClock_API {
 
 typedef struct Logger_t {
     TraderId_t trader_id;
-    bool is_bypassed;
+    char* component;
 } Logger_t;
 
 /**
@@ -395,11 +395,9 @@ enum LogColor log_color_from_cstr(const char *ptr);
  *
  * - Assumes `trader_id_ptr` is a valid C string pointer.
  */
-struct Logger_t logger_new(TraderId_t trader_id, uint8_t is_bypassed);
+struct Logger_t logger_new(TraderId_t trader_id, const char *component_ptr);
 
 const char *logger_get_trader_id_cstr(const struct Logger_t *logger);
-
-uint8_t logger_is_bypassed(const struct Logger_t *logger);
 
 /**
  * Create a new log event.
@@ -409,10 +407,7 @@ uint8_t logger_is_bypassed(const struct Logger_t *logger);
  * - Assumes `component_ptr` is a valid C string pointer.
  * - Assumes `message_ptr` is a valid C string pointer.
  */
-void logger_log(struct Logger_t *logger,
-                enum LogLevel level,
-                const char *message_ptr,
-                const char *component_ptr);
+void logger_log(struct Logger_t *logger, enum LogLevel level, const char *message_ptr);
 
 struct TimeEventHandler_t dummy(struct TimeEventHandler_t v);
 

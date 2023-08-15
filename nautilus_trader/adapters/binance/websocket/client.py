@@ -20,7 +20,6 @@ from nautilus_trader.adapters.binance.common.schemas.symbol import BinanceSymbol
 from nautilus_trader.common.clock import LiveClock
 from nautilus_trader.common.enums import LogColor
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.core.nautilus_pyo3.network import WebSocketClient
 
 
@@ -54,7 +53,7 @@ class BinanceWebSocketClient:
     ) -> None:
         self._clock = clock
         self._logger = logger
-        self._log: LoggerAdapter = LoggerAdapter(type(self).__name__, logger=logger)
+        self._log: Logger = logger.with_component(type(self).__name__)
 
         self._base_url: str = base_url
         self._handler: Callable[[bytes], None] = handler

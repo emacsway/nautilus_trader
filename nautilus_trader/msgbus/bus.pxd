@@ -14,7 +14,7 @@
 # -------------------------------------------------------------------------------------------------
 
 from nautilus_trader.common.clock cimport Clock
-from nautilus_trader.common.logging cimport LoggerAdapter
+from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.core.message cimport Request
 from nautilus_trader.core.message cimport Response
 from nautilus_trader.core.uuid cimport UUID4
@@ -24,7 +24,7 @@ from nautilus_trader.msgbus.subscription cimport Subscription
 
 cdef class MessageBus:
     cdef Clock _clock
-    cdef LoggerAdapter _log
+    cdef Logger _log
     cdef dict _subscriptions
     cdef dict _patterns
     cdef dict _endpoints

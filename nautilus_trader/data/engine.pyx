@@ -1217,7 +1217,7 @@ cdef class DataEngine(Component):
 
     cpdef void _handle_request(self, DataRequest request):
         if self.debug:
-            self._log.debug(f"{RECV}{REQ} {request}.", LogColor.MAGENTA)
+            self._log.debug(f"{RECV}{REQ} {request}.")
         self.request_count += 1
 
         # Query data catalog
@@ -1523,7 +1523,7 @@ cdef class DataEngine(Component):
 
     cpdef void _handle_response(self, DataResponse response):
         if self.debug:
-            self._log.debug(f"{RECV}{RES} {response}.", LogColor.MAGENTA)
+            self._log.debug(f"{RECV}{RES} {response}.")
         self.response_count += 1
 
         if response.data_type.type == Instrument:

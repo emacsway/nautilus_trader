@@ -23,6 +23,7 @@ use tracing_appender::{
     rolling::{RollingFileAppender, Rotation},
 };
 use tracing_subscriber::{fmt::Layer, prelude::*, EnvFilter, Registry};
+use ustr::Ustr;
 
 /// Guards the log collector and flushes it when dropped
 ///
@@ -88,45 +89,45 @@ pub fn set_global_log_collector(
 #[repr(C)]
 pub struct Logger {
     pub trader_id: TraderId,
-    pub is_bypassed: bool,
+    pub component: Ustr,
 }
 
 impl Logger {
-    pub fn new(trader_id: TraderId, is_bypassed: bool) -> Self {
+    pub fn new(trader_id: TraderId, component: Ustr) -> Self {
         Logger {
             trader_id,
-            is_bypassed,
+            component,
         }
     }
 
-    pub fn debug(&self, message: &str, component: &str) {
+    pub fn debug(&self, message: &str) {
         debug!(
             message,
-            component = component,
+            component = self.component.as_str(),
             id = self.trader_id.value.as_str()
         );
     }
 
-    pub fn info(&self, message: &str, component: &str) {
+    pub fn info(&self, message: &str) {
         info!(
             message,
-            component = component,
+            component = self.component.as_str(),
             id = self.trader_id.value.as_str()
         );
     }
 
-    pub fn warn(&self, message: &str, component: &str) {
+    pub fn warn(&self, message: &str) {
         warn!(
             message,
-            component = component,
+            component = self.component.as_str(),
             id = self.trader_id.value.as_str()
         );
     }
 
-    pub fn error(&self, message: &str, component: &str) {
+    pub fn error(&self, message: &str) {
         error!(
             message,
-            component = component,
+            component = self.component.as_str(),
             id = self.trader_id.value.as_str()
         );
     }

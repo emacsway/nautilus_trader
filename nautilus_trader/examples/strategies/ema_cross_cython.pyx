@@ -207,7 +207,6 @@ cdef class EMACross(Strategy):
         if not self.indicators_initialized():
             self.log.info(
                 f"Waiting for indicators to warm up [{self.cache.bar_count(self.bar_type)}]...",
-                color=LogColor.BLUE,
             )
             return  # Wait for indicators to warm up...
 

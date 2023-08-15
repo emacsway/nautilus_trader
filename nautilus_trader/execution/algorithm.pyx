@@ -242,7 +242,7 @@ cdef class ExecAlgorithm(Actor):
         Condition.not_none(command, "command")
         Condition.equal(command.exec_algorithm_id, self.id, "command.exec_algorithm_id", "self.id")
 
-        self._log.debug(f"{RECV}{CMD} {command}.", LogColor.MAGENTA)
+        self._log.debug(f"{RECV}{CMD} {command}.")
 
         if self._fsm.state != ComponentState.RUNNING:
             return
@@ -257,7 +257,7 @@ cdef class ExecAlgorithm(Actor):
         if command.strategy_id in self._subscribed_strategies:
             return  # Already subscribed
 
-        self._log.info(f"Subscribing to {command.strategy_id} order events.", LogColor.BLUE)
+        self._log.info(f"Subscribing to {command.strategy_id} order events.")
         self._msgbus.subscribe(topic=f"events.order.{command.strategy_id.to_str()}", handler=self._handle_order_event)
         self._subscribed_strategies.add(command.strategy_id)
 

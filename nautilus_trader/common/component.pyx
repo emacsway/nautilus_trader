@@ -25,7 +25,6 @@ from nautilus_trader.common.clock cimport Clock
 from nautilus_trader.common.enums_c cimport ComponentState
 from nautilus_trader.common.enums_c cimport ComponentTrigger
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.common.messages cimport ComponentStateChanged
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.core.fsm cimport FiniteStateMachine
@@ -166,7 +165,7 @@ cdef class Component:
 
         self._msgbus = msgbus
         self._clock = clock
-        self._log = LoggerAdapter(component_name=component_name, logger=logger)
+        self._log = logger.with_component(component_name)
         self._fsm = ComponentFSMFactory.create()
         self._config = config
 
@@ -293,7 +292,7 @@ cdef class Component:
     cdef void _change_logger(self, Logger logger):
         Condition.not_none(logger, "logger")
 
-        self._log = LoggerAdapter(component_name=self.id.value, logger=logger)
+        self._log = logger.with_component(self.id.value)
 
     cdef void _change_msgbus(self, MessageBus msgbus):
         # As an additional system wiring check: if a message bus is being added

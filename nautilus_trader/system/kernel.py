@@ -35,10 +35,7 @@ from nautilus_trader.common.clock import Clock
 from nautilus_trader.common.clock import LiveClock
 from nautilus_trader.common.clock import TestClock
 from nautilus_trader.common.enums import LogColor
-from nautilus_trader.common.enums import LogLevel
-from nautilus_trader.common.enums import log_level_from_str
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.common.logging import nautilus_header
 from nautilus_trader.config import ActorFactory
 from nautilus_trader.config import DataEngineConfig
@@ -148,27 +145,12 @@ class NautilusKernel:
         # Setup the logger with a `LiveClock` initially,
         # which is later swapped out for a `TestClock` in the `BacktestEngine`.
         self._logger: Logger = Logger(
-            clock=self._clock if isinstance(self._clock, LiveClock) else LiveClock(),
             trader_id=self._trader_id,
-            machine_id=self._machine_id,
-            instance_id=self._instance_id,
-            level_stdout=log_level_from_str(logging.log_level),
-            level_file=log_level_from_str(logging.log_level_file)
-            if logging.log_level_file is not None
-            else LogLevel.DEBUG,
-            file_logging=logging.log_level_file is not None,
-            directory=logging.log_directory,
-            file_name=logging.log_file_name,
-            file_format=logging.log_file_format,
-            component_levels=logging.log_component_levels,
             bypass=False if self._environment == Environment.LIVE else logging.bypass_logging,
         )
 
         # Setup logging
-        self._log: LoggerAdapter = LoggerAdapter(
-            component_name=name,
-            logger=self._logger,
-        )
+        self._log: Logger = self._logger.with_component(name)
 
         nautilus_header(self._log)
         self.log.info("Building system kernel...")
@@ -549,13 +531,13 @@ class NautilusKernel:
         return self._clock
 
     @property
-    def log(self) -> LoggerAdapter:
+    def log(self) -> Logger:
         """
         Return the kernels logger adapter.
 
         Returns
         -------
-        LoggerAdapter
+        Logger
 
         """
         return self._log

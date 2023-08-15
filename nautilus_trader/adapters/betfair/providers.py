@@ -33,7 +33,6 @@ from nautilus_trader.adapters.betfair.common import BETFAIR_TICK_SCHEME
 from nautilus_trader.adapters.betfair.constants import BETFAIR_VENUE
 from nautilus_trader.adapters.betfair.parsing.common import chunk
 from nautilus_trader.adapters.betfair.parsing.requests import parse_handicap
-from nautilus_trader.common.clock import LiveClock
 from nautilus_trader.common.logging import Logger
 from nautilus_trader.common.providers import InstrumentProvider
 from nautilus_trader.config import InstrumentProviderConfig
@@ -50,8 +49,6 @@ class BetfairInstrumentProvider(InstrumentProvider):
     ----------
     client : BetfairClient, optional
         The client for the provider.
-    logger : Logger
-        The logger for the provider.
     config : InstrumentProviderConfig, optional
         The configuration for the provider.
 
@@ -100,7 +97,7 @@ class BetfairInstrumentProvider(InstrumentProvider):
         instruments: list[Instrument],
         logger: Optional[Logger] = None,
     ):
-        logger = logger or Logger(LiveClock())
+        logger = logger or Logger()
         instance = cls(client=None, logger=logger)
         instance.add_bulk(instruments)
         return instance

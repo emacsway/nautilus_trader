@@ -18,7 +18,6 @@ from __future__ import annotations
 import asyncio
 
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.config import InstrumentProviderConfig
 from nautilus_trader.core.correctness import PyCondition
 from nautilus_trader.model.currency import Currency
@@ -57,7 +56,7 @@ class InstrumentProvider:
 
         if config is None:
             config = InstrumentProviderConfig()
-        self._log = LoggerAdapter(type(self).__name__, logger)
+        self._log = Logger(type(self).__name__, logger)
 
         self._venue = venue
         self._instruments: dict[InstrumentId, Instrument] = {}

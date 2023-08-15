@@ -109,7 +109,7 @@ cdef class Actor(Component):
 
         super().__init__(
             clock=Clock(),  # Use placeholder abstract clock until registered
-            logger=Logger(clock=Clock(), dummy=True),  # Use dummy logger until registered
+            logger=Logger(),
             component_id=component_id,
             config=config.dict(),
         )
@@ -630,9 +630,9 @@ cdef class Actor(Component):
             self.log.debug("Saving state...")
             user_state = self.on_save()
             if len(user_state) > 0:
-                self.log.info(f"Saved state: {list(user_state.keys())}.", color=LogColor.BLUE)
+                self.log.info(f"Saved state: {list(user_state.keys())}.")
             else:
-                self.log.info("No user state to save.", color=LogColor.BLUE)
+                self.log.info("No user state to save.")
             return user_state
         except Exception as e:
             self.log.exception("Error on save", e)
@@ -662,13 +662,13 @@ cdef class Actor(Component):
         Condition.not_none(state, "state")
 
         if not state:
-            self.log.info("No user state to load.", color=LogColor.BLUE)
+            self.log.info("No user state to load.")
             return
 
         try:
             self.log.debug(f"Loading state...")
             self.on_load(state)
-            self.log.info(f"Loaded state {list(state.keys())}.", color=LogColor.BLUE)
+            self.log.info(f"Loaded state {list(state.keys())}.")
         except Exception as e:
             self.log.exception(f"Error on load {repr(state)}", e)
             raise
@@ -770,7 +770,7 @@ cdef class Actor(Component):
             )
 
         self._log.info(
-                f"Executor: Queued {task_id}: {func.__name__}({args=}, {kwargs=}).", LogColor.BLUE,
+                f"Executor: Queued {task_id}: {func.__name__}({args=}, {kwargs=})."
         )
         return task_id
 
@@ -828,7 +828,7 @@ cdef class Actor(Component):
             )
 
         self._log.info(
-            f"Executor: Submitted {task_id}: {func.__name__}({args=}, {kwargs=}).", LogColor.BLUE,
+            f"Executor: Submitted {task_id}: {func.__name__}({args=}, {kwargs=})."
         )
         return task_id
 

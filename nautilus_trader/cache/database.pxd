@@ -18,7 +18,7 @@ from libc.stdint cimport uint64_t
 
 from nautilus_trader.accounting.accounts.base cimport Account
 from nautilus_trader.common.actor cimport Actor
-from nautilus_trader.common.logging cimport LoggerAdapter
+from nautilus_trader.common.logging cimport Logger
 from nautilus_trader.execution.messages cimport SubmitOrder
 from nautilus_trader.execution.messages cimport SubmitOrderList
 from nautilus_trader.model.currency cimport Currency
@@ -40,7 +40,7 @@ from nautilus_trader.trading.strategy cimport Strategy
 
 
 cdef class CacheDatabase:
-    cdef LoggerAdapter _log
+    cdef Logger _log
 
     cpdef void flush(self)
     cpdef dict load(self)

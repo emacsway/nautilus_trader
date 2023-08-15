@@ -21,7 +21,6 @@ from pytest_mock import MockerFixture
 from nautilus_trader.accounting.factory import AccountFactory
 from nautilus_trader.common.clock import TestClock
 from nautilus_trader.common.logging import Logger
-from nautilus_trader.common.logging import LoggerAdapter
 from nautilus_trader.core.message import Event
 from nautilus_trader.data.engine import DataEngine
 from nautilus_trader.execution.engine import ExecutionEngine
@@ -59,7 +58,7 @@ def logger(clock):
 
 @pytest.fixture()
 def log(logger):
-    return LoggerAdapter("test", logger)
+    return logger.with_component("test")
 
 
 @pytest.fixture()

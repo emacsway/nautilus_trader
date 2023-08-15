@@ -35,7 +35,6 @@ from nautilus_trader.accounting.manager cimport AccountsManager
 from nautilus_trader.cache.base cimport CacheFacade
 from nautilus_trader.common.logging cimport LogColor
 from nautilus_trader.common.logging cimport Logger
-from nautilus_trader.common.logging cimport LoggerAdapter
 from nautilus_trader.core.correctness cimport Condition
 from nautilus_trader.model.currency cimport Currency
 from nautilus_trader.model.data.tick cimport QuoteTick
@@ -100,7 +99,7 @@ cdef class Portfolio(PortfolioFacade):
         Logger logger = None,
     ):
         self._clock = clock
-        self._log = LoggerAdapter(component_name=type(self).__name__, logger=logger)
+        self._log = logger.with_component(type(self).__name__)
         self._msgbus = msgbus
         self._cache = cache
         self._accounts = AccountsManager(
@@ -217,7 +216,6 @@ cdef class Portfolio(PortfolioFacade):
         cdef int open_count = len(all_orders_open)
         self._log.info(
             f"Initialized {open_count} open order{'' if open_count == 1 else 's'}.",
-            color=LogColor.BLUE if open_count else LogColor.NORMAL,
         )
 
         self.initialized = initialized
@@ -295,7 +293,6 @@ cdef class Portfolio(PortfolioFacade):
         cdef int open_count = len(all_positions_open)
         self._log.info(
             f"Initialized {open_count} open position{'' if open_count == 1 else 's'}.",
-            color=LogColor.BLUE if open_count else LogColor.NORMAL,
         )
 
         self.initialized = initialized
