@@ -169,6 +169,16 @@ pub mod stubs {
     };
 
     #[fixture]
+    pub fn instrument_id_ethusdt_binance() -> InstrumentId {
+        InstrumentId::from_str("ETHUSDT.BINANCE").unwrap()
+    }
+
+    #[fixture]
+    pub fn instrument_id_ethusdt_perp_binance() -> InstrumentId {
+        InstrumentId::from_str("ETHUSDT-PERP.BINANCE").unwrap()
+    }
+
+    #[fixture]
     pub fn btc_usdt_perp_binance() -> InstrumentId {
         InstrumentId::from_str("BTCUSDT-PERP.BINANCE").unwrap()
     }
