@@ -102,6 +102,15 @@ impl Default for InnerHttpClient {
 
 #[pymethods]
 impl HttpResponse {
+    #[new]
+    fn new(status: u16, body: Vec<u8>) -> Self {
+        Self {
+            status,
+            body,
+            headers: Default::default(),
+        }
+    }
+
     #[getter]
     fn get_body(&self, py: Python) -> PyResult<Py<PyBytes>> {
         Ok(PyBytes::new(py, &self.body).into())
