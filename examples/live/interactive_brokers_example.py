@@ -43,6 +43,11 @@ from nautilus_trader.live.node import TradingNode
 # *** THIS INTEGRATION IS STILL UNDER CONSTRUCTION. ***
 # *** CONSIDER IT TO BE IN AN UNSTABLE BETA PHASE AND EXERCISE CAUTION. ***
 
+USERNAME = 'fmacek123demo'
+PASSWORD = '3366234Gjmjr.'
+ACCOUNT_ID = 'DU7787904'
+
+
 ib_contracts = [
     IBContract(
         secType="STK",
@@ -64,8 +69,8 @@ ib_contracts = [
 
 gateway = InteractiveBrokersGatewayConfig(
     start=False,
-    username=None,
-    password=None,
+    username=USERNAME,
+    password=PASSWORD,
     trading_mode="paper",
     read_only_api=True,
 )
@@ -111,7 +116,7 @@ config_node = TradingNodeConfig(
             ibg_host="127.0.0.1",
             ibg_port=7497,
             ibg_client_id=1,
-            account_id="DU123456",  # This must match with the IB Gateway/TWS node is connecting to
+            account_id=ACCOUNT_ID,
             gateway=gateway,
             instrument_provider=instrument_provider,
             routing=RoutingConfig(
